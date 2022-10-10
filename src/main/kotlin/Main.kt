@@ -9,6 +9,8 @@ import java.text.DecimalFormat
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
+const val TITLE_VERSION = "COUPER V:1.2.6"
+
 const val UTC_CONSTANT = 3
 
 const val MAX_SEASON_DEPTH = 3
@@ -40,7 +42,7 @@ fun main() {
         )
     )
 
-    println("\n========== COUPER V:1.2.5 (DEBUG) ==========")
+    println("\n========== $TITLE_VERSION (DEBUG) ==========")
     println("\n - Welcome to coupon advisor Couper!\n")
 
     print(" > Enter the country name: ")
