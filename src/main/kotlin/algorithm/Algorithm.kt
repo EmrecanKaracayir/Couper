@@ -7,7 +7,7 @@ import data.AlgorithmData
 import data.AlgorithmResults
 import kotlin.math.*
 
-const val BASE_VALUE_OF_COEFFICENT = 1.4
+const val BASE_VALUE_OF_COEFFICENT = 1.25
 const val NEW_SEASON_COEFFICENT = 10
 const val H2H_MATCHES_COEFFICENT = 25
 const val LAST_X_MATCHES_COEFFICENT = 75

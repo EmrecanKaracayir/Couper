@@ -6,14 +6,13 @@ plugins {
 }
 
 group = "me.emrec"
-version = "1.0-SNAPSHOT"
+version = "1.2.6"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.google.code.gson:gson:2.9.1")
 }
