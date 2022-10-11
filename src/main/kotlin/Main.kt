@@ -15,15 +15,13 @@ const val UTC_CONSTANT = 3
 
 const val MAX_SEASON_DEPTH = 3
 
-const val ACCEPTABLE_RESULT_DEVIATION = Double.MAX_VALUE
+const val MAX_ACCEPTABLE_RESULT_DEVIATION = Double.MAX_VALUE
 
 val scorePredictionList = ArrayList<Int>()
 
 val matchResultPredictionList = ArrayList<Int>()
 
 val kgPredictionList = ArrayList<Int>()
-
-val gvgyPredictionList = ArrayList<Int>()
 
 val overCouponsLowRiskPredictionList = ArrayList<Int>()
 val overCouponsNormalRiskPredictionList = ArrayList<Int>()
@@ -87,7 +85,7 @@ fun main() {
 
 fun printResults() {
     println("\n\n########## SONUÇLAR ##########")
-    println("\n - Minimum kabul edilebilir sonuç tutarlılığı yüzdesi: $ACCEPTABLE_RESULT_DEVIATION")
+    println("\n - Minimum kabul edilebilir sonuç tutarlılığı yüzdesi: $MAX_ACCEPTABLE_RESULT_DEVIATION")
 
     println("\n SKOR TAHMİNİ:")
     val scoreSuccessRate = scorePredictionList.sum() * 100.0 / scorePredictionList.size
@@ -103,11 +101,6 @@ fun printResults() {
     println("\n KG TAHMİNİ:")
     val kgSuccessRate = kgPredictionList.sum() * 100.0 / kgPredictionList.size
     println("\n - BAŞARI ORANI: $kgSuccessRate% | DOĞRU TAHMİN EDİLEN: ${kgPredictionList.sum()}/${kgPredictionList.size}\n")
-
-
-    println("\n GOL VAR/YOK TAHMİNİ:")
-    val gvgySuccessRate = gvgyPredictionList.sum() * 100.0 / gvgyPredictionList.size
-    println("\n - BAŞARI ORANI: $gvgySuccessRate% | DOĞRU TAHMİN EDİLEN: ${gvgyPredictionList.sum()}/${gvgyPredictionList.size}\n")
 
 
     println("\n ÜST KUPONLAR TAHMİNİ:")
@@ -158,7 +151,7 @@ fun printAndSaveScorePredictions(fixture: Fixture, results: AlgorithmResults) {
     val homeTeamPredictedScore = results.homeTeamPredictedScore.roundToInt()
     val awayTeamPredictedScore = results.awayTeamPredictedScore.roundToInt()
 
-    if (results.resultDeviation > ACCEPTABLE_RESULT_DEVIATION) return
+    if (results.resultDeviation > MAX_ACCEPTABLE_RESULT_DEVIATION) return
 
     if (fixture.homeTeamScore != null) println(" - SCORES: | ${fixture.homeTeamName} ${fixture.homeTeamScore} : ${fixture.awayTeamScore} ${fixture.awayTeamName}")
     else println(" - SCORES: | ${fixture.homeTeamName} [UNDETERMINED] : [UNDETERMINED] ${fixture.awayTeamName}")
@@ -196,15 +189,6 @@ fun printAndSaveScorePredictions(fixture: Fixture, results: AlgorithmResults) {
         } else {
             if (fixture.homeTeamScore == 0 || fixture.awayTeamScore == 0) kgPredictionList.add(0)
             else kgPredictionList.add(1)
-        }
-
-        // ? GOL VAR/YOK PREDICTION
-        if (homeTeamPredictedScore == 0 && awayTeamPredictedScore == 0) {
-            if (fixture.homeTeamScore == 0 && fixture.awayTeamScore == 0) gvgyPredictionList.add(1)
-            else gvgyPredictionList.add(0)
-        } else {
-            if (fixture.homeTeamScore == 0 && fixture.awayTeamScore == 0) gvgyPredictionList.add(0)
-            else gvgyPredictionList.add(1)
         }
 
         // ? OVER COUPONS PREDICTION
