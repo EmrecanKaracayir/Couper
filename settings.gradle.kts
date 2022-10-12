@@ -1,1 +1,1 @@
-rootProject.name = "CouperDebug"
+rootProject.name = "Couper"
