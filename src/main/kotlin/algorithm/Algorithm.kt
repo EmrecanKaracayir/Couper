@@ -1,5 +1,6 @@
 package algorithm
 
+import SAFETY_MODE
 import algorithm.manager.H2hAnalysisManager
 import algorithm.manager.OpponentAnalysisManager
 import algorithm.model.SidedFixture
@@ -7,15 +8,15 @@ import data.AlgorithmData
 import data.AlgorithmResults
 import kotlin.math.*
 
-const val BASE_VALUE_OF_COEFFICENT = 1.4
+const val BASE_VALUE_OF_COEFFICENT = 1.25
 const val NEW_SEASON_COEFFICENT = 10
 const val H2H_MATCHES_COEFFICENT = 25
 const val LAST_X_MATCHES_COEFFICENT = 75
 const val HOME_AWAY_CORRECT_POSITION_COEFFICENT = 6
 const val HOME_AWAY_WRONG_POSITION_COEFFICENT = 4
 const val SCORE_WEIGHT_DIFFERENCE_COEFFICENT = 1
-const val STANDARD_DEVIATION_COEFFICENT = 2
-const val STANDARD_DEVIATION_PENALTY_COEFFICENT = 10
+const val STANDARD_DEVIATION_COEFFICENT = 1
+const val STANDARD_DEVIATION_PENALTY_COEFFICENT = 5
 const val PAAG_COEFFICENT = 50
 const val PAYG_COEFFICENT = 50
 
@@ -111,12 +112,14 @@ class Algorithm(private val data: AlgorithmData) {
         val favoriteCouponIsOver: Boolean
         val favoriteCoupon: Double
         if (maxG - midG > midG - minG) {
-            val favoriteCouponVal = round((midG + minG) / 2) - 0.5
+            val favoriteCouponVal =
+                round((midG + minG * SAFETY_MODE.value) / (1 + SAFETY_MODE.value)) - 0.5
             favoriteCoupon = if (favoriteCouponVal < 0) 0.5
             else favoriteCouponVal
             favoriteCouponIsOver = true
         } else {
-            favoriteCoupon = round((midG + maxG) / 2) + 0.5
+            favoriteCoupon =
+                round((midG + maxG * SAFETY_MODE.value) / (1 + SAFETY_MODE.value)) + 0.5
             favoriteCouponIsOver = false
         }
 

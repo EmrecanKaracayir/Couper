@@ -87,7 +87,8 @@ class AnalysisList(
         var lastNode = nodeTBA
         while (lastNode.hasDownNode()) {
             lastNode = lastNode.downNode!!
-            lastNode.sidedFixture.fixture.weight = formWeightCalculator(lastNode.nodeOrder + 1)
+            lastNode.sidedFixture.fixture.weight =
+                formWeightCalculator(childNodeCount - lastNode.nodeOrder)
         }
 
         lastNode = nodeTBA
@@ -132,12 +133,17 @@ class AnalysisList(
         lastNode = nodeTBA
         while (lastNode.hasDownNode()) {
             lastNode = lastNode.downNode!!
-            val aagDiff = if (isHomeTeam(
-                    lastNode.sidedFixture.fixture, nodeTBA.sidedFixture.sideTeamID
-                )
-            ) lastNode.sidedFixture.fixture.homeTeamAAG!! - lastNode.sidedFixture.fixture.homeTeamScore!!
-            else lastNode.sidedFixture.fixture.awayTeamAAG!! - lastNode.sidedFixture.fixture.awayTeamScore!!
-            if (aagDiff > (aagAllDiffsMean + aagDiffSD * STANDARD_DEVIATION_COEFFICENT) || aagDiff < (aagAllDiffsMean - aagDiffSD * STANDARD_DEVIATION_COEFFICENT)) lastNode.sidedFixture.fixture.weight /= STANDARD_DEVIATION_PENALTY_COEFFICENT
+            if (!lastNode.sidedFixture.standardDeviationPenaltyApplied) {
+                val aagDiff = if (isHomeTeam(
+                        lastNode.sidedFixture.fixture, nodeTBA.sidedFixture.sideTeamID
+                    )
+                ) lastNode.sidedFixture.fixture.homeTeamAAG!! - lastNode.sidedFixture.fixture.homeTeamScore!!
+                else lastNode.sidedFixture.fixture.awayTeamAAG!! - lastNode.sidedFixture.fixture.awayTeamScore!!
+                if (aagDiff > (aagAllDiffsMean + aagDiffSD * STANDARD_DEVIATION_COEFFICENT) || aagDiff < (aagAllDiffsMean - aagDiffSD * STANDARD_DEVIATION_COEFFICENT)) {
+                    lastNode.sidedFixture.fixture.weight /= STANDARD_DEVIATION_PENALTY_COEFFICENT
+                    lastNode.sidedFixture.standardDeviationPenaltyApplied = true
+                }
+            }
         }
 
         // AYG STANDARD DEVIATION
@@ -162,12 +168,17 @@ class AnalysisList(
         lastNode = nodeTBA
         while (lastNode.hasDownNode()) {
             lastNode = lastNode.downNode!!
-            val aygDiff = if (isHomeTeam(
-                    lastNode.sidedFixture.fixture, lastNode.sidedFixture.sideTeamID
-                )
-            ) lastNode.sidedFixture.fixture.homeTeamAYG!! - lastNode.sidedFixture.fixture.awayTeamScore!!
-            else lastNode.sidedFixture.fixture.awayTeamAYG!! - lastNode.sidedFixture.fixture.homeTeamScore!!
-            if (aygDiff > (aygAllDiffsMean + aygDiffSD * STANDARD_DEVIATION_COEFFICENT) || aygDiff < (aygAllDiffsMean - aygDiffSD * STANDARD_DEVIATION_COEFFICENT)) lastNode.sidedFixture.fixture.weight /= STANDARD_DEVIATION_PENALTY_COEFFICENT
+            if (!lastNode.sidedFixture.standardDeviationPenaltyApplied) {
+                val aygDiff = if (isHomeTeam(
+                        lastNode.sidedFixture.fixture, lastNode.sidedFixture.sideTeamID
+                    )
+                ) lastNode.sidedFixture.fixture.homeTeamAYG!! - lastNode.sidedFixture.fixture.awayTeamScore!!
+                else lastNode.sidedFixture.fixture.awayTeamAYG!! - lastNode.sidedFixture.fixture.homeTeamScore!!
+                if (aygDiff > (aygAllDiffsMean + aygDiffSD * STANDARD_DEVIATION_COEFFICENT) || aygDiff < (aygAllDiffsMean - aygDiffSD * STANDARD_DEVIATION_COEFFICENT)) {
+                    lastNode.sidedFixture.fixture.weight /= STANDARD_DEVIATION_PENALTY_COEFFICENT
+                    lastNode.sidedFixture.standardDeviationPenaltyApplied = true
+                }
+            }
         }
     }
 
