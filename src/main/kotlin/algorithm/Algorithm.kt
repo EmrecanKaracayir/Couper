@@ -1,5 +1,6 @@
 package algorithm
 
+import SAFETY_MODE
 import algorithm.manager.H2hAnalysisManager
 import algorithm.manager.OpponentAnalysisManager
 import algorithm.model.SidedFixture
@@ -111,12 +112,14 @@ class Algorithm(private val data: AlgorithmData) {
         val favoriteCouponIsOver: Boolean
         val favoriteCoupon: Double
         if (maxG - midG > midG - minG) {
-            val favoriteCouponVal = round((midG + minG) / 2) - 0.5
+            val favoriteCouponVal =
+                round((midG + minG * SAFETY_MODE.value) / (1 + SAFETY_MODE.value)) - 0.5
             favoriteCoupon = if (favoriteCouponVal < 0) 0.5
             else favoriteCouponVal
             favoriteCouponIsOver = true
         } else {
-            favoriteCoupon = round((midG + maxG) / 2) + 0.5
+            favoriteCoupon =
+                round((midG + maxG * SAFETY_MODE.value) / (1 + SAFETY_MODE.value)) + 0.5
             favoriteCouponIsOver = false
         }
 

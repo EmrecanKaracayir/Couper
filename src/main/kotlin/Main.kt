@@ -9,13 +9,20 @@ import java.text.DecimalFormat
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
 
+enum class Safety(val value: Double) {
+    SAFEST(4.00),
+    SAFE(2.00),
+    NORMAL(1.00),
+    RISKY(0.50),
+    RISKIEST(0.25)
+}
+
 const val TITLE_VERSION = "COUPER V:1.2.6"
-
 const val UTC_CONSTANT = 3
-
 const val MAX_SEASON_DEPTH = 3
-
+val SAFETY_MODE = Safety.SAFE
 const val MAX_ACCEPTABLE_RESULT_DEVIATION = Double.MAX_VALUE
+
 
 val scorePredictionList = ArrayList<Int>()
 
@@ -131,7 +138,7 @@ fun printResults() {
     println("\n - YÜKSEK RİSK BAŞARI ORANI: $underCouponsHighRiskSuccessRate% | DOĞRU TAHMİN EDİLEN: ${underCouponsHighRiskPredictionList.sum()}/${underCouponsHighRiskPredictionList.size}\n")
 
 
-    println("\n FAVORİ KUPON TAHMİNİ TAHMİNİ:")
+    println("\n FAVORİ KUPON TAHMİNİ:")
     val favoriteCouponSuccessRate =
         favoriteCouponPredictionList.sum() * 100.0 / favoriteCouponPredictionList.size
     println("\n - BAŞARI ORANI: $favoriteCouponSuccessRate% | DOĞRU TAHMİN EDİLEN: ${favoriteCouponPredictionList.sum()}/${favoriteCouponPredictionList.size}")
