@@ -18,7 +18,7 @@ class H2hAnalysisManager(private val data: AlgorithmData) {
             ) h2hLastSidedFixtures.add(SidedFixture(fixture, fixture.awayTeamID))
             else h2hLastSidedFixtures.add(SidedFixture(fixture, fixture.homeTeamID))
         }
-
+        initialOAL.appendSidedFixtures(h2hLastSidedFixtures)
         return initialOAL.analyzeH2H()
     }
 }

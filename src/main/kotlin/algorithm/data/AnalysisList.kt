@@ -285,6 +285,7 @@ class AnalysisList(
         var fixtureCoefficentsSum = 0.0
         lastNode = nodeTBA
         while (lastNode.hasDownNode()) {
+            lastNode = lastNode.downNode!!
             totalScore += goals[lastNode.nodeOrder] * lastNode.sidedFixture.fixture.weight
             fixtureCoefficentsSum += lastNode.sidedFixture.fixture.weight
         }

@@ -86,7 +86,9 @@ class NormalMode {
                     println(" - [EXIT] | FIXTURE NOT FOUND!")
                     exitProcess(-4)
                 }
+
                 algorithmPhase(selectedFixture, fixturePool)
+                fixturePool.resetFixtures()
                 FootballApi.apiPredictionsPhase(selectedFixture)
 
                 println("\n########## ------- ##########\n")

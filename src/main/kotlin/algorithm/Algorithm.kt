@@ -8,7 +8,7 @@ import data.AlgorithmData
 import data.AlgorithmResults
 import kotlin.math.*
 
-const val BASE_VALUE_OF_COEFFICENT = 1.25
+const val BASE_VALUE_OF_COEFFICENT = 1.1
 const val NEW_SEASON_COEFFICENT = 10
 const val H2H_MATCHES_COEFFICENT = 25
 const val LAST_X_MATCHES_COEFFICENT = 75
@@ -85,33 +85,21 @@ class Algorithm(private val data: AlgorithmData) {
             else (h2hFixturesTotalGoals * H2H_MATCHES_COEFFICENT + minGLastMatches * LAST_X_MATCHES_COEFFICENT) / (H2H_MATCHES_COEFFICENT + LAST_X_MATCHES_COEFFICENT)
         }
 
-        // Over Coupons
-        var minGFloor = floor(minG).toInt()
-        val midGFloor = floor(midG).toInt()
-        val maxGFloor = floor(maxG).toInt()
+        val minGRound = round(minG).toInt()
+        val midGRound = round(midG).toInt()
+        val maxGRound = round(maxG).toInt()
 
-        if (minGFloor == midGFloor) --minGFloor
+        val overCouponLowRisk = minGRound - 0.5
+        val overCouponNormal = midGRound - 0.5
+        val overCouponHighRisk = maxGRound - 0.5
 
-        val overCouponLowRisk = minGFloor - 0.5
-        val overCouponNormal = midGFloor - 0.5
-        val overCouponHighRisk = maxGFloor - 0.5
-
-        // Under Coupons
-        var maxGCeil = ceil(maxG).toInt()
-        val midGCeil = ceil(midG).toInt()
-        var minGCeil = ceil(minG).toInt()
-
-        if (maxGCeil == midGCeil) ++maxGCeil
-
-        if (minGCeil <= 0) minGCeil = 0
-
-        val underCouponLowRisk = maxGCeil + 0.5
-        val underCouponNormal = midGCeil + 0.5
-        val underCouponHighRisk = minGCeil + 0.5
+        val underCouponLowRisk = maxGRound + 0.5
+        val underCouponNormal = midGRound + 0.5
+        val underCouponHighRisk = minGRound + 0.5
 
         val favoriteCouponIsOver: Boolean
         val favoriteCoupon: Double
-        if (maxG - midG > midG - minG) {
+        if (maxG - midG >= midG - minG) {
             val favoriteCouponVal =
                 round((midG + minG * SAFETY_MODE.value) / (1 + SAFETY_MODE.value)) - 0.5
             favoriteCoupon = if (favoriteCouponVal < 0) 0.5

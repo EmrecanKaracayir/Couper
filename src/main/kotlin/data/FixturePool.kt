@@ -27,4 +27,9 @@ data class FixturePool(
     fun sortFixtureListByTimestampAsc() {
         fixtureList.sortBy { it.fixtureTimeStamp }
     }
+
+    fun resetFixtures() {
+        for (fixture in fixtureList)
+            fixture.resetFixture()
+    }
 }

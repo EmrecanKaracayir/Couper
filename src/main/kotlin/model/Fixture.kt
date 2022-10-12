@@ -31,4 +31,13 @@ data class Fixture(
         return if (isHomeTeam(this, refTeamID)) homeTeamAAG != null && homeTeamAYG != null
         else awayTeamAAG != null && awayTeamAYG != null
     }
+
+    fun resetFixture() {
+        homeTeamAAG = null
+        homeTeamAYG = null
+        awayTeamAAG = null
+        awayTeamAYG = null
+
+        weight = 1.0
+    }
 }

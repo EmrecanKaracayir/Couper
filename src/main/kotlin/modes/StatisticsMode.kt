@@ -13,6 +13,8 @@ import kotlin.system.exitProcess
 
 class StatisticsMode {
     companion object {
+        private val deviationList = ArrayList<Double>()
+
         private val scorePredictionList = ArrayList<Int>()
 
         private val matchResultPredictionList = ArrayList<Int>()
@@ -64,6 +66,7 @@ class StatisticsMode {
             for (fixture in fixturePool.fixtureList) {
                 if (fixture.leagueSeason == leagueSeason) {
                     algorithmPhase(fixture, fixturePool)
+                    fixturePool.resetFixtures()
                 }
             }
 
@@ -90,6 +93,9 @@ class StatisticsMode {
 
             if (fixture.homeTeamScore != null && fixture.awayTeamScore != null) {
                 val totalGoals = fixture.homeTeamScore + fixture.awayTeamScore
+
+                // ? DEVIATION RESULT
+                deviationList.add(results.resultDeviation)
 
                 // ? SCORE PREDICTION
                 if (homeTeamPredictedScore == fixture.homeTeamScore && awayTeamPredictedScore == fixture.awayTeamScore) scorePredictionList.add(
@@ -172,14 +178,16 @@ class StatisticsMode {
                     DecimalFormat(
                         "#.##"
                     ).format(results.resultDeviation)
-                }"
+                } | FC: ${results.favoriteCoupon} ${if (results.favoriteCouponIsOver) "OVER" else "UNDER"}"
             )
             println()
         }
 
         private fun printResults() {
             println("\n\n########## SONUÇLAR ##########")
-            println("\n - Minimum kabul edilebilir sonuç tutarlılığı yüzdesi: $MAX_ACCEPTABLE_RESULT_DEVIATION")
+            println("\n - Minimum kabul edilebilir sapma: $MAX_ACCEPTABLE_RESULT_DEVIATION")
+            println("\n - Ortalama sapma: ${deviationList.sum() / deviationList.size}")
+
 
             println("\n SKOR TAHMİNİ:")
             val scoreSuccessRate = scorePredictionList.sum() * 100.0 / scorePredictionList.size

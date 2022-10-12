@@ -47,6 +47,7 @@ class ExportMode {
 
                     for (fixture in fixturesToAnalyze) {
                         val results = algorithmPhase(fixture, fixturePool)
+                        fixturePool.resetFixtures()
                         val decimalResultDeviation =
                             DecimalFormat("#.##").format(results.resultDeviation)
                         if (results.favoriteCouponIsOver) document.add("- Tarih: ${fixture.fixtureDate} | Tahmin: ${results.favoriteCoupon} ÜST | Sapma: $decimalResultDeviation | Fikstür: ${fixture.homeTeamName} : ${fixture.awayTeamName}")
