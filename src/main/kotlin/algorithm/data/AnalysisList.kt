@@ -6,6 +6,7 @@ import algorithm.utils.isHomeTeam
 import algorithm.utils.isInSameSeason
 import algorithm.utils.isSideInCorrectPosition
 import java.util.ArrayList
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -44,13 +45,17 @@ class AnalysisList(
         else {
             nodeTBA.sidedFixture.fixture.homeTeamAAG =
                 nodeTBA.sidedFixture.fixture.homeTeamScore!!.toDouble()
+            nodeTBA.sidedFixture.fixture.deviationHomeTeamAAG = 0.0
             nodeTBA.sidedFixture.fixture.homeTeamAYG =
                 nodeTBA.sidedFixture.fixture.awayTeamScore!!.toDouble()
+            nodeTBA.sidedFixture.fixture.deviationHomeTeamAYG = 0.0
 
             nodeTBA.sidedFixture.fixture.awayTeamAAG =
                 nodeTBA.sidedFixture.fixture.awayTeamScore!!.toDouble()
+            nodeTBA.sidedFixture.fixture.deviationAwayTeamAAG = 0.0
             nodeTBA.sidedFixture.fixture.awayTeamAYG =
                 nodeTBA.sidedFixture.fixture.homeTeamScore!!.toDouble()
+            nodeTBA.sidedFixture.fixture.deviationAwayTeamAYG = 0.0
         }
     }
 
@@ -61,6 +66,11 @@ class AnalysisList(
             childWeightPenaltyAssigner()
         }
         parentWeightAssigner()
+        parentDeviationAssigner()
+    }
+
+    private fun parentDeviationAssigner() {
+        val homeTeamAAG =
     }
 
     private fun childWeightedScoresCalculator() {
@@ -139,8 +149,11 @@ class AnalysisList(
                     )
                 ) lastNode.sidedFixture.fixture.homeTeamAAG!! - lastNode.sidedFixture.fixture.homeTeamScore!!
                 else lastNode.sidedFixture.fixture.awayTeamAAG!! - lastNode.sidedFixture.fixture.awayTeamScore!!
-                if (aagDiff > (aagAllDiffsMean + aagDiffSD * STANDARD_DEVIATION_COEFFICENT) || aagDiff < (aagAllDiffsMean - aagDiffSD * STANDARD_DEVIATION_COEFFICENT)) {
-                    lastNode.sidedFixture.fixture.weight /= STANDARD_DEVIATION_PENALTY_COEFFICENT
+                if (aagDiff > (aagAllDiffsMean + aagDiffSD)) {
+                    lastNode.sidedFixture.fixture.weight /= (abs(aagDiff - (aagAllDiffsMean + aagDiffSD)) + 1)
+                    lastNode.sidedFixture.standardDeviationPenaltyApplied = true
+                } else if (aagDiff < (aagAllDiffsMean - aagDiffSD)) {
+                    lastNode.sidedFixture.fixture.weight /= (abs((aagAllDiffsMean - aagDiffSD) - aagDiff) + 1)
                     lastNode.sidedFixture.standardDeviationPenaltyApplied = true
                 }
             }
@@ -174,8 +187,11 @@ class AnalysisList(
                     )
                 ) lastNode.sidedFixture.fixture.homeTeamAYG!! - lastNode.sidedFixture.fixture.awayTeamScore!!
                 else lastNode.sidedFixture.fixture.awayTeamAYG!! - lastNode.sidedFixture.fixture.homeTeamScore!!
-                if (aygDiff > (aygAllDiffsMean + aygDiffSD * STANDARD_DEVIATION_COEFFICENT) || aygDiff < (aygAllDiffsMean - aygDiffSD * STANDARD_DEVIATION_COEFFICENT)) {
-                    lastNode.sidedFixture.fixture.weight /= STANDARD_DEVIATION_PENALTY_COEFFICENT
+                if (aygDiff > (aygAllDiffsMean + aygDiffSD)) {
+                    lastNode.sidedFixture.fixture.weight /= (abs(aygDiff - (aygAllDiffsMean + aygDiffSD)) + 1)
+                    lastNode.sidedFixture.standardDeviationPenaltyApplied = true
+                } else if (aygDiff < (aygAllDiffsMean - aygDiffSD)) {
+                    lastNode.sidedFixture.fixture.weight /= (abs((aygAllDiffsMean - aygDiffSD) - aygDiff) + 1)
                     lastNode.sidedFixture.standardDeviationPenaltyApplied = true
                 }
             }
@@ -265,9 +281,17 @@ class AnalysisList(
         lastNode = nodeTBA
         while (lastNode.hasDownNode()) {
             lastNode = lastNode.downNode!!
-            val goalC =
-                lastNode.sidedFixture.fixture.homeTeamScore!! + lastNode.sidedFixture.fixture.awayTeamScore!!
-            if (goalC > (h2hAllGoalsMean + h2hSD * STANDARD_DEVIATION_COEFFICENT) || goalC < (h2hAllGoalsMean - h2hSD * STANDARD_DEVIATION_COEFFICENT)) lastNode.sidedFixture.fixture.weight /= STANDARD_DEVIATION_PENALTY_COEFFICENT
+            if (!lastNode.sidedFixture.standardDeviationPenaltyApplied) {
+                val goalC =
+                    lastNode.sidedFixture.fixture.homeTeamScore!! + lastNode.sidedFixture.fixture.awayTeamScore!!
+                if (goalC > (h2hAllGoalsMean + h2hSD)) {
+                    lastNode.sidedFixture.fixture.weight /= (abs(goalC - (h2hAllGoalsMean + h2hSD)) + 1)
+                    lastNode.sidedFixture.standardDeviationPenaltyApplied = true
+                } else if (goalC < (h2hAllGoalsMean - h2hSD)) {
+                    lastNode.sidedFixture.fixture.weight /= (abs((h2hAllGoalsMean - h2hSD) - goalC) + 1)
+                    lastNode.sidedFixture.standardDeviationPenaltyApplied = true
+                }
+            }
         }
     }
 

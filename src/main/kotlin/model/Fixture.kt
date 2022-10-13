@@ -21,9 +21,13 @@ data class Fixture(
     val awayTeamScore: Int?,
 ) {
     var homeTeamAAG: Double? = null
+    var deviationHomeTeamAAG: Double? = null
     var homeTeamAYG: Double? = null
+    var deviationHomeTeamAYG: Double? = null
     var awayTeamAAG: Double? = null
+    var deviationAwayTeamAAG: Double? = null
     var awayTeamAYG: Double? = null
+    var deviationAwayTeamAYG: Double? = null
 
     var weight: Double = 1.0
 
@@ -34,9 +38,13 @@ data class Fixture(
 
     fun resetFixture() {
         homeTeamAAG = null
+        deviationHomeTeamAAG = null
         homeTeamAYG = null
+        deviationHomeTeamAYG = null
         awayTeamAAG = null
+        deviationAwayTeamAAG = null
         awayTeamAYG = null
+        deviationAwayTeamAYG = null
 
         weight = 1.0
     }

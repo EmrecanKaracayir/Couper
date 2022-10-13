@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.emrec"
-version = "1.2.6"
+version = "1.2"
 
 repositories {
     mavenCentral()

@@ -15,10 +15,6 @@ const val LAST_X_MATCHES_COEFFICENT = 75
 const val HOME_AWAY_CORRECT_POSITION_COEFFICENT = 6
 const val HOME_AWAY_WRONG_POSITION_COEFFICENT = 4
 const val SCORE_WEIGHT_DIFFERENCE_COEFFICENT = 1
-const val STANDARD_DEVIATION_COEFFICENT = 1
-const val STANDARD_DEVIATION_PENALTY_COEFFICENT = 5
-const val PAAG_COEFFICENT = 50
-const val PAYG_COEFFICENT = 50
 
 class Algorithm(private val data: AlgorithmData) {
     private val oam = OpponentAnalysisManager(data)
@@ -42,24 +38,37 @@ class Algorithm(private val data: AlgorithmData) {
             h2ham.analyzeH2H(SidedFixture(data.fixtureToPredict, data.fixtureToPredict.homeTeamID))
                 ?: Double.NaN
 
-        val maxGLastMatches = (max(
-            homeTeamAAG.coerceAtLeast(0.0), awayTeamAYG.coerceAtLeast(0.0)
-        ) + max(awayTeamAAG.coerceAtLeast(0.0), homeTeamAYG.coerceAtLeast(0.0)))
+        // ? AAG & AYG MIN MAX
+        val homeTeamMinAAG = homeTeamAAG - data.fixtureToPredict.deviationHomeTeamAAG!!
+        val homeTeamMaxAAG = homeTeamAAG + data.fixtureToPredict.deviationHomeTeamAAG!!
+        val homeTeamMinAYG = homeTeamAYG - data.fixtureToPredict.deviationHomeTeamAYG!!
+        val homeTeamMaxAYG = homeTeamAYG + data.fixtureToPredict.deviationHomeTeamAYG!!
 
-        val homeTeamMidPAG =
-            ((homeTeamAAG * PAAG_COEFFICENT + awayTeamAYG * PAYG_COEFFICENT) / (PAAG_COEFFICENT + PAYG_COEFFICENT)).coerceAtLeast(
+
+        val awayTeamMinAAG = awayTeamAAG - data.fixtureToPredict.deviationAwayTeamAAG!!
+        val awayTeamMaxAAG = awayTeamAAG + data.fixtureToPredict.deviationAwayTeamAAG!!
+        val awayTeamMinAYG = awayTeamAYG - data.fixtureToPredict.deviationAwayTeamAYG!!
+        val awayTeamMaxAYG = awayTeamAYG + data.fixtureToPredict.deviationAwayTeamAYG!!
+
+        // ? MING
+        val minGLastMatches =
+            ((homeTeamMinAAG + awayTeamMinAYG) / 2 + (awayTeamMinAAG + homeTeamMinAYG) / 2).coerceAtLeast(
                 0.0
             )
-        val awayTeamMidPAG =
-            ((awayTeamAAG * PAAG_COEFFICENT + homeTeamAYG * PAYG_COEFFICENT) / (PAAG_COEFFICENT + PAYG_COEFFICENT)).coerceAtLeast(
+
+        // ? MAXG
+        val maxGLastMatches =
+            ((homeTeamMaxAAG + awayTeamMaxAYG) / 2 + (awayTeamMaxAAG + homeTeamMaxAYG) / 2).coerceAtLeast(
                 0.0
             )
 
-        val minGLastMatches = (min(
-            homeTeamAAG.coerceAtLeast(0.0), awayTeamAYG.coerceAtLeast(0.0)
-        ) + min(
-            awayTeamAAG.coerceAtLeast(0.0), homeTeamAYG.coerceAtLeast(0.0)
-        ))
+        // ? MIDG
+        val homeTeamMidPAG = ((homeTeamAAG + awayTeamAYG) / 2).coerceAtLeast(
+            0.0
+        )
+        val awayTeamMidPAG = ((awayTeamAAG + homeTeamAYG) / 2).coerceAtLeast(
+            0.0
+        )
 
         val maxG: Double
         val midG: Double
@@ -89,22 +98,25 @@ class Algorithm(private val data: AlgorithmData) {
         val midGRound = round(midG).toInt()
         val maxGRound = round(maxG).toInt()
 
-        val overCouponLowRisk = minGRound - 0.5
+        val overCouponLowRisk = if (minGRound > 0) midGRound - 0.5 else 0.5
         val overCouponNormal = midGRound - 0.5
         val overCouponHighRisk = maxGRound - 0.5
 
         val underCouponLowRisk = maxGRound + 0.5
         val underCouponNormal = midGRound + 0.5
-        val underCouponHighRisk = minGRound + 0.5
+        val underCouponHighRisk = if (minGRound > -1) midGRound + 0.5 else 0.5
 
         val favoriteCouponIsOver: Boolean
         val favoriteCoupon: Double
         if (maxG - midG >= midG - minG) {
-            val favoriteCouponVal =
+            var favoriteCouponVal =
                 round((midG + minG * SAFETY_MODE.value) / (1 + SAFETY_MODE.value)) - 0.5
-            favoriteCoupon = if (favoriteCouponVal < 0) 0.5
-            else favoriteCouponVal
-            favoriteCouponIsOver = true
+            if (favoriteCouponVal < 0) {
+                favoriteCouponVal = 0.5
+                favoriteCouponIsOver = false
+            } else favoriteCouponIsOver = true
+            favoriteCoupon = favoriteCouponVal
+
         } else {
             favoriteCoupon =
                 round((midG + maxG * SAFETY_MODE.value) / (1 + SAFETY_MODE.value)) + 0.5

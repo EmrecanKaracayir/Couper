@@ -10,7 +10,7 @@ enum class Safety(val value: Double) {
     SAFEST(4.00), SAFE(2.00), NORMAL(1.00), RISKY(0.50), RISKIEST(0.25)
 }
 
-const val TITLE_VERSION = "COUPER V:1.2.6"
+const val TITLE_VERSION = "COUPER V:1.2.7"
 const val UTC_CONSTANT = 3
 const val MAX_SEASON_DEPTH = 3
 
