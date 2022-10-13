@@ -31,6 +31,8 @@ class StatisticsMode {
 
         private val favoriteCouponPredictionList = ArrayList<Int>()
 
+        private val veryLowOrHighFCs = ArrayList<Int>()
+
         fun statisticsMode() {
             print(" > Enter the country name: ")
             val countryName: String = readln().lowercase()
@@ -172,6 +174,15 @@ class StatisticsMode {
                     else favoriteCouponPredictionList.add(0)
                 }
 
+                // ? VERY LOW OR HIGH COUPONS
+                if (results.favoriteCouponIsOver) {
+                    if (results.favoriteCoupon < 1 && totalGoals > 1) veryLowOrHighFCs.add(1)
+                    else veryLowOrHighFCs.add(0)
+                } else {
+                    if (results.favoriteCoupon > 4 && totalGoals < 4) veryLowOrHighFCs.add(1)
+                    else veryLowOrHighFCs.add(0)
+                }
+
             }
             println(
                 " - ALGOV4: | ${fixture.homeTeamName} $homeTeamPredictedScore : $awayTeamPredictedScore ${fixture.awayTeamName} | Deviation: ${
@@ -236,7 +247,13 @@ class StatisticsMode {
             println("\n FAVORİ KUPON TAHMİNİ:")
             val favoriteCouponSuccessRate =
                 favoriteCouponPredictionList.sum() * 100.0 / favoriteCouponPredictionList.size
-            println("\n - BAŞARI ORANI: $favoriteCouponSuccessRate% | DOĞRU TAHMİN EDİLEN: ${favoriteCouponPredictionList.sum()}/${favoriteCouponPredictionList.size}")
+            println("\n - BAŞARI ORANI: $favoriteCouponSuccessRate% | DOĞRU TAHMİN EDİLEN: ${favoriteCouponPredictionList.sum()}/${favoriteCouponPredictionList.size}\n")
+
+
+            println("\n İŞE YARAMAZ KUPON TAHMİNLERİ:")
+            val pointlessCouponPercentage =
+                veryLowOrHighFCs.sum() * 100.0 / veryLowOrHighFCs.size
+            println("\n - TÜM FAVORİ KUPONLARA ORANI: $pointlessCouponPercentage% | SAYISAL: ${veryLowOrHighFCs.sum()}/${veryLowOrHighFCs.size}")
 
         }
     }

@@ -69,10 +69,6 @@ class AnalysisList(
         parentDeviationAssigner()
     }
 
-    private fun parentDeviationAssigner() {
-        val homeTeamAAG =
-    }
-
     private fun childWeightedScoresCalculator() {
         var lastNode = nodeTBA
         while (lastNode.hasDownNode()) {
@@ -250,6 +246,70 @@ class AnalysisList(
         if (nodeTBA.sidedFixture.isSideHome()) nodeTBA.sidedFixture.fixture.homeTeamAYG =
             aygTotal / aygFixtureCoefficentSum
         else nodeTBA.sidedFixture.fixture.awayTeamAYG = aygTotal / aygFixtureCoefficentSum
+    }
+
+    private fun parentDeviationAssigner() {
+        // AAG AD
+        val sideTeamAAG =
+            if (nodeTBA.sidedFixture.isSideHome()) nodeTBA.sidedFixture.fixture.homeTeamAAG!! else nodeTBA.sidedFixture.fixture.awayTeamAAG!!
+
+        val aagADs = DoubleArray(childNodeCount) { 0.0 }
+        var lastNode = nodeTBA
+        while (lastNode.hasDownNode()) {
+            lastNode = lastNode.downNode!!
+            if (isHomeTeam(
+                    lastNode.sidedFixture.fixture, nodeTBA.sidedFixture.sideTeamID
+                )
+            ) aagADs[lastNode.nodeOrder] =
+                if (lastNode.sidedFixture.standardDeviationPenaltyApplied) 0.0 else abs(sideTeamAAG - lastNode.sidedFixture.fixture.homeTeamAAG!!)
+            else aagADs[lastNode.nodeOrder] =
+                if (lastNode.sidedFixture.standardDeviationPenaltyApplied) 0.0 else abs(sideTeamAAG - lastNode.sidedFixture.fixture.awayTeamAAG!!)
+        }
+
+        var aagTotalAD = 0.0
+        var aagFixtureCoefficentSum = 0.0
+        lastNode = nodeTBA
+        while (lastNode.hasDownNode()) {
+            lastNode = lastNode.downNode!!
+            aagTotalAD += aagADs[lastNode.nodeOrder] * lastNode.sidedFixture.fixture.weight
+            aagFixtureCoefficentSum += lastNode.sidedFixture.fixture.weight
+        }
+
+        if (nodeTBA.sidedFixture.isSideHome()) nodeTBA.sidedFixture.fixture.deviationHomeTeamAAG =
+            aagTotalAD / aagFixtureCoefficentSum
+        else nodeTBA.sidedFixture.fixture.deviationAwayTeamAAG =
+            aagTotalAD / aagFixtureCoefficentSum
+
+        // AYG AD
+        val sideTeamAYG =
+            if (nodeTBA.sidedFixture.isSideHome()) nodeTBA.sidedFixture.fixture.homeTeamAYG!! else nodeTBA.sidedFixture.fixture.awayTeamAYG!!
+
+        val aygADs = DoubleArray(childNodeCount) { 0.0 }
+        lastNode = nodeTBA
+        while (lastNode.hasDownNode()) {
+            lastNode = lastNode.downNode!!
+            if (isHomeTeam(
+                    lastNode.sidedFixture.fixture, nodeTBA.sidedFixture.sideTeamID
+                )
+            ) aygADs[lastNode.nodeOrder] =
+                if (lastNode.sidedFixture.standardDeviationPenaltyApplied) 0.0 else abs(sideTeamAYG - lastNode.sidedFixture.fixture.homeTeamAYG!!)
+            else aygADs[lastNode.nodeOrder] =
+                if (lastNode.sidedFixture.standardDeviationPenaltyApplied) 0.0 else abs(sideTeamAYG - lastNode.sidedFixture.fixture.awayTeamAYG!!)
+        }
+
+        var aygTotalAD = 0.0
+        var aygFixtureCoefficentSum = 0.0
+        lastNode = nodeTBA
+        while (lastNode.hasDownNode()) {
+            lastNode = lastNode.downNode!!
+            aygTotalAD += aygADs[lastNode.nodeOrder] * lastNode.sidedFixture.fixture.weight
+            aygFixtureCoefficentSum += lastNode.sidedFixture.fixture.weight
+        }
+
+        if (nodeTBA.sidedFixture.isSideHome()) nodeTBA.sidedFixture.fixture.deviationHomeTeamAYG =
+            aygTotalAD / aygFixtureCoefficentSum
+        else nodeTBA.sidedFixture.fixture.deviationAwayTeamAYG =
+            aygTotalAD / aygFixtureCoefficentSum
     }
 
     fun analyzeH2H(): Double? {

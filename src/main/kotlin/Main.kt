@@ -27,7 +27,7 @@ fun main() {
     println("\n========== $TITLE_VERSION ==========")
     println("\n - Welcome to coupon advisor Couper!\n")
 
-    print(" > Enter \"normal\", or enter \"export\", or enter \"statistics\", for mode selection: ")
+    print(" > Enter \"n\", or enter \"e\", or enter \"s\", for mode selection: ")
 
     when (readln().lowercase()) {
         "n", "normal" -> {

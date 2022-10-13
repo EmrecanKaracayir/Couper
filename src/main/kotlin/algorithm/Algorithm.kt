@@ -8,7 +8,7 @@ import data.AlgorithmData
 import data.AlgorithmResults
 import kotlin.math.*
 
-const val BASE_VALUE_OF_COEFFICENT = 1.1
+const val BASE_VALUE_OF_COEFFICENT = 1.25
 const val NEW_SEASON_COEFFICENT = 10
 const val H2H_MATCHES_COEFFICENT = 25
 const val LAST_X_MATCHES_COEFFICENT = 75
@@ -52,9 +52,7 @@ class Algorithm(private val data: AlgorithmData) {
 
         // ? MING
         val minGLastMatches =
-            ((homeTeamMinAAG + awayTeamMinAYG) / 2 + (awayTeamMinAAG + homeTeamMinAYG) / 2).coerceAtLeast(
-                0.0
-            )
+            ((homeTeamMinAAG + awayTeamMinAYG) / 2 + (awayTeamMinAAG + homeTeamMinAYG) / 2)
 
         // ? MAXG
         val maxGLastMatches =
@@ -76,7 +74,7 @@ class Algorithm(private val data: AlgorithmData) {
         if (h2hFixturesTotalGoals.isNaN()) {
             maxG = maxGLastMatches
 
-            midG = (homeTeamMidPAG + awayTeamMidPAG).coerceAtLeast(0.0)
+            midG = (homeTeamMidPAG + awayTeamMidPAG)
 
             minG = minGLastMatches
         } else {
@@ -84,9 +82,9 @@ class Algorithm(private val data: AlgorithmData) {
             else (h2hFixturesTotalGoals * H2H_MATCHES_COEFFICENT + maxGLastMatches * LAST_X_MATCHES_COEFFICENT) / (H2H_MATCHES_COEFFICENT + LAST_X_MATCHES_COEFFICENT)
 
             val h2hMatchesGoalsWithCoefficent =
-                (h2hFixturesTotalGoals * H2H_MATCHES_COEFFICENT).coerceAtLeast(0.0)
+                (h2hFixturesTotalGoals * H2H_MATCHES_COEFFICENT)
             val lastXMatchesMidGWithCoefficent =
-                ((homeTeamMidPAG + awayTeamMidPAG) * LAST_X_MATCHES_COEFFICENT).coerceAtLeast(0.0)
+                ((homeTeamMidPAG + awayTeamMidPAG) * LAST_X_MATCHES_COEFFICENT)
             midG =
                 (h2hMatchesGoalsWithCoefficent + lastXMatchesMidGWithCoefficent) / (H2H_MATCHES_COEFFICENT + LAST_X_MATCHES_COEFFICENT)
 
@@ -94,34 +92,54 @@ class Algorithm(private val data: AlgorithmData) {
             else (h2hFixturesTotalGoals * H2H_MATCHES_COEFFICENT + minGLastMatches * LAST_X_MATCHES_COEFFICENT) / (H2H_MATCHES_COEFFICENT + LAST_X_MATCHES_COEFFICENT)
         }
 
-        val minGRound = round(minG).toInt()
-        val midGRound = round(midG).toInt()
-        val maxGRound = round(maxG).toInt()
+        // Over Coupons
+        var minGFloor = floor(minG).toInt()
+        val midGFloor = floor(midG).toInt()
+        val maxGFloor = floor(maxG).toInt()
 
-        val overCouponLowRisk = if (minGRound > 0) midGRound - 0.5 else 0.5
-        val overCouponNormal = midGRound - 0.5
-        val overCouponHighRisk = maxGRound - 0.5
+        if (minGFloor == midGFloor) --minGFloor
 
-        val underCouponLowRisk = maxGRound + 0.5
-        val underCouponNormal = midGRound + 0.5
-        val underCouponHighRisk = if (minGRound > -1) midGRound + 0.5 else 0.5
+        val overCouponLowRisk = minGFloor - 0.5
+        val overCouponNormal = midGFloor - 0.5
+        val overCouponHighRisk = maxGFloor - 0.5
+
+        // Under Coupons
+        var maxGCeil = ceil(maxG).toInt()
+        val midGCeil = ceil(midG).toInt()
+        var minGCeil = ceil(minG).toInt()
+
+        if (maxGCeil == midGCeil) ++maxGCeil
+
+        if (minGCeil <= 0) minGCeil = 0
+
+        val underCouponLowRisk = maxGCeil + 0.5
+        val underCouponNormal = midGCeil + 0.5
+        val underCouponHighRisk = minGCeil + 0.5
 
         val favoriteCouponIsOver: Boolean
         val favoriteCoupon: Double
-        if (maxG - midG >= midG - minG) {
-            var favoriteCouponVal =
+        if (maxG - midG > midG - minG) {
+            val favoriteCouponVal =
                 round((midG + minG * SAFETY_MODE.value) / (1 + SAFETY_MODE.value)) - 0.5
-            if (favoriteCouponVal < 0) {
-                favoriteCouponVal = 0.5
-                favoriteCouponIsOver = false
-            } else favoriteCouponIsOver = true
-            favoriteCoupon = favoriteCouponVal
-
+            if (favoriteCouponVal < 1){
+                favoriteCoupon = overCouponNormal
+                favoriteCouponIsOver = true
+            } else {
+                favoriteCoupon = favoriteCouponVal
+                favoriteCouponIsOver = true
+            }
         } else {
-            favoriteCoupon =
+            val favoriteCouponVal =
                 round((midG + maxG * SAFETY_MODE.value) / (1 + SAFETY_MODE.value)) + 0.5
-            favoriteCouponIsOver = false
+            if (favoriteCouponVal > 4) {
+                favoriteCoupon = underCouponNormal
+                favoriteCouponIsOver = false
+            } else {
+                favoriteCoupon = favoriteCouponVal
+                favoriteCouponIsOver = false
+            }
         }
+
 
         return AlgorithmResults(
             resultDeviationCalculator(minG, midG, maxG),
